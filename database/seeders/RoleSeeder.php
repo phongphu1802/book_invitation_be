@@ -15,8 +15,14 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
-        Role::create(['name' => RoleEnum::ADMIN]);
-        Role::create(['name' => RoleEnum::SYSTEM]);
-        Role::create(['name' => RoleEnum::USER]);
+        $roles = [
+            ['name' => RoleEnum::ADMIN],
+            ['name' => RoleEnum::SYSTEM],
+            ['name' => RoleEnum::USER]
+        ];
+
+        foreach ($roles as $role) {
+            Role::updateOrCreate(['name' => $role['name']], $role);
+        }
     }
 }

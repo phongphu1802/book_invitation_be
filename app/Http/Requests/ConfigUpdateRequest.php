@@ -26,8 +26,16 @@ class ConfigUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'key' => [Rule::unique('configs')->ignore($this->key, 'key')],
-            'type' => [Rule::in([ConfigEnum::PUBLIC ->value, ConfigEnum::SYSTEM->value])]
+            'key' => [Rule::unique('configs')->ignore($this->id, 'uuid')->whereNull('deleted_at')],
+            'type' => [Rule::in([ConfigEnum::PUBLIC ->value, ConfigEnum::SYSTEM->value])],
+            'value' => [
+                Rule::when($this->datatype === ConfigEnum::IMAGES->value, ['array']),
+                Rule::when($this->datatype === ConfigEnum::BOOLEAN->value, ['boolean']),
+                Rule::when($this->datatype === ConfigEnum::TEXT->value, ['string']),
+                Rule::when($this->datatype === ConfigEnum::IMAGE->value, ['string']),
+                Rule::when($this->datatype === ConfigEnum::NUMBER->value, ['numeric']),
+            ],
+            'datatype' => [Rule::in([ConfigEnum::BOOLEAN->value, ConfigEnum::TEXT->value, ConfigEnum::IMAGE->value, ConfigEnum::IMAGES->value, ConfigEnum::NUMBER->value])]
         ];
     }
 }

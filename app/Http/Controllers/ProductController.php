@@ -4,21 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Abstracts\AbstractRestAPIController;
 use App\Http\Controllers\Traits\DestroyTrait;
-use App\Http\Controllers\Traits\EditTrait;
 use App\Http\Controllers\Traits\IndexTrait;
 use App\Http\Controllers\Traits\ShowTrait;
-use App\Http\Controllers\Traits\StoreTrait;
 use App\Http\Requests\IndexRequest;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductUpdateRequest;
-use App\Http\Requests\UploadRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductResourceCollection;
 use App\Services\ProductService;
 
 class ProductController extends AbstractRestAPIController
 {
-    use IndexTrait, ShowTrait, StoreTrait, DestroyTrait, EditTrait;
+    use IndexTrait, ShowTrait, DestroyTrait;
     public function __construct(ProductService $service)
     {
         $this->service = $service;
@@ -31,13 +28,39 @@ class ProductController extends AbstractRestAPIController
 
     public function store(ProductCreateRequest $request)
     {
-        //upload local
-        $image = $request->file('image');
-        $imageName = time().'.'.$image->getClientOriginalExtension();
-        $image->move(public_path('images/products'), $imageName);
+        $data = [
+            "category_uuid" => $request->category_uuid,
+            "name" => $request->name,
+            "description" => $request->description,
+            "price" => $request->price,
+            "image" => $request->image,
+        ];
 
-        $imageUrl = url(config('constants.upload_path.product_path') . $imageName);
-        $model = $this->service->create(array_merge($request->all(), ['image' => $imageUrl]));
+        $data["detail_images"] = json_encode($request->detail_images);
+
+        $model = $this->service->create(array_filter($data));
+
+        return $this->sendCreatedJsonResponse(
+            $this->service->resourceToData($this->resourceClass, $model)
+        );
+    }
+
+    public function edit(ProductUpdateRequest $request)
+    {
+        $model = $this->service->findOrFailById($request->id);
+
+        $data = [
+            "category_uuid" => $request->category_uuid,
+            "name" => $request->name,
+            "description" => $request->description,
+            "price" => $request->price,
+            "image" => $request->image,
+        ];
+
+        if ($request->detail_images)
+            $data["detail_images"] = json_encode($request->detail_images);
+
+        $this->service->update($model, array_filter($data));
 
         return $this->sendCreatedJsonResponse(
             $this->service->resourceToData($this->resourceClass, $model)

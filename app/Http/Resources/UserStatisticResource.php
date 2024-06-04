@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Request;
 
-class CartResource extends JsonResource
+class UserStatisticResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,21 +16,14 @@ class CartResource extends JsonResource
     public function toArray($request)
     {
         $data = [
-            'uuid' => $this->uuid,
             'user_uuid' => $this->user_uuid,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'deleted_at' => $this->deleted_at
+            'total_price' => $this->total_price
         ];
 
         $expand = Request::get('expand', []);
 
-        if (in_array('cart__product', $expand)) {
-            $data['products'] = CartItemResource::collection($this->cart_items);
-        }
-
-        if (in_array('cart__user_uuid', $expand)) {
-            $data['user'] = $this->user;
+        if (in_array('dashboard__user_uuid', $expand)) {
+            $data['user'] = $this->order_user;
         }
 
         return $data;

@@ -16,8 +16,9 @@ return new class extends Migration {
         Schema::create('configs', function (Blueprint $table) {
             $table->unsignedBigInteger('uuid')->autoIncrement();
             $table->string('key');
-            $table->string('value');
+            $table->text('value');
             $table->enum('type', [ConfigEnum::PUBLIC ->value, ConfigEnum::SYSTEM->value]);
+            $table->enum('datatype', [ConfigEnum::BOOLEAN->value, ConfigEnum::TEXT->value, ConfigEnum::IMAGE->value, ConfigEnum::IMAGES->value, ConfigEnum::NUMBER->value]);
             $table->string('description');
             $table->timestamps();
             $table->softDeletes();
@@ -31,6 +32,6 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('config');
+        Schema::dropIfExists('configs');
     }
 };

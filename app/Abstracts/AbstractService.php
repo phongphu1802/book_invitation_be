@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Abstracts;
+
+use App\Enums\DashboardEnum;
+use App\Http\Requests\DasboardStatisticRequest;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Builder;
@@ -213,6 +216,21 @@ abstract class AbstractService
 
     /**
      * @param $request
+     * @param $where
+     * @return mixed
+     */
+    public function getCollectionWithPaginationWhereNotIn($request, $where = null, $notIn = [])
+    {
+        $indexRequest = $this->getIndexRequest($request);
+
+        return $this->modelQueryBuilderClass::searchQuery($indexRequest['search'], $indexRequest['search_by'])
+            ->where($where)
+            ->whereNotIn('uuid', $notIn)
+            ->paginate($indexRequest['per_page'], $indexRequest['columns'], $indexRequest['page_name'], $indexRequest['page']);
+    }
+
+    /**
+     * @param $request
      * @param $select
      * @return mixed
      */
@@ -249,5 +267,123 @@ abstract class AbstractService
         $model = $this->findOneWhereOrFailByUserUuidAndAppId($id);
 
         return $model->delete();
+    }
+
+    public function listRangeTime(DasboardStatisticRequest $request)
+    {
+        if ($request->type === DashboardEnum::DAY->value) {
+            $array = $this->dateRange($request->from_date, $request->to_date, "+1 day", "Y-m-d");
+            $object = [];
+            for ($i = 0; $i < count($array); $i++) {
+                array_push($object, (Object) [
+                    'name' => $array[$i],
+                    'value' => 0,
+                ]);
+            }
+            return $object;
+        }
+
+        if ($request->type === DashboardEnum::MONTH->value) {
+            $array = $this->dateRange($request->from_date, $request->to_date, "+1 month", "Y-m");
+            $object = [];
+            for ($i = 0; $i < count($array); $i++) {
+                array_push($object, (Object) [
+                    'name' => $array[$i],
+                    'value' => 0,
+                ]);
+            }
+            return $object;
+        }
+
+        if ($request->type === DashboardEnum::YEAR->value) {
+            $array = $this->dateRange($request->from_date, $request->to_date, "+1 year", "Y");
+            $object = [];
+            for ($i = 0; $i < count($array); $i++) {
+                array_push($object, (Object) [
+                    'name' => $array[$i],
+                    'value' => 0,
+                ]);
+            }
+            return $object;
+        }
+
+        return $request;
+    }
+
+    /**
+     * Creating date collection between two dates
+     *
+     * <code>
+     * <?php
+     * # Example 1
+     * date_range("2014-01-01", "2014-01-20", "+1 day", "m-d-Y");
+     *
+     * # Example 2. you can use even time
+     * date_range("01:00:00", "23:00:00", "+1 hour", "H:i:s");
+     * </code>
+     *
+     * @param string since any date, time or datetime format
+     * @param string until any date, time or datetime format
+     * @param string step
+     * @param string date of output format
+     * @return array
+     */
+    function dateRange($first, $last, $step = '+1 day', $output_format = 'd-m-Y')
+    {
+
+        $dates = array();
+        $current = strtotime($first);
+        $last = strtotime($last);
+
+        while ($current <= $last) {
+            $dates[] = date($output_format, $current);
+            $current = strtotime($step, $current);
+        }
+
+        return $dates;
+    }
+
+    /**
+     * Merge two arrays of objects and check uniqueness by key and sort in ascending or descending order
+     *
+     * <code>
+     * <?php
+     * # Example 1 sort ascending
+     * mergeUniqueSortProperty([], [], "key", "SORT_ASC");
+     *
+     * # Example 2. sort decrease
+     * mergeUniqueSortProperty([], [], "key", "SORT_DESC");
+     * </code>
+     *
+     * @param array merge first
+     * @param array array merge second
+     * @param string property unique
+     * @param string type sort
+     * @return array
+     */
+    function mergeUniqueSortProperty($arrayOne = [], $arrrayTrue = [], $property, $typeSort = 'SORT_ASC')
+    {
+        $array = array_merge($arrayOne, $arrrayTrue);
+
+        $tempArray = array_unique(array_column($array, $property));
+
+        $moreUniqueArray = array_values(array_intersect_key($array, $tempArray));
+
+        #sort asc for day
+        if ($typeSort === 'SORT_ASC')
+            usort($moreUniqueArray, function ($a, $b) {
+                if ($a->name == $b->name)
+                    return 0;
+                return (strtotime($a->name) > strtotime($b->name)) ? 1 : -1;
+            });
+
+        if ($typeSort === 'SORT_DESC')
+            usort($moreUniqueArray, function ($a, $b) {
+                if ($a->name == $b->name)
+                    return 0;
+                return (strtotime($a->name) < strtotime($b->name)) ? 1 : -1;
+            });
+
+        return $moreUniqueArray;
     }
 }

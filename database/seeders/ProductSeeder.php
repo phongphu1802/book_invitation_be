@@ -21,23 +21,44 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        Product::create(['name' => 'Product 1', 
-                        'description' => 'Product 1 description',
-                        'price' => 1000,
-                        'category_uuid' => $this->categoryService->findOneWhere(['name' => 'Mailbox'])->uuid,
-                        'image' => 'images',
-                        ]);
-        Product::create(['name' => 'Product 2', 
-                        'description' => 'Product 2 description',
-                        'price' => 2000,
-                        'category_uuid' => $this->categoryService->findOneWhere(['name' => 'SMS'])->uuid,
-                        'image' => 'images',
-                        ]);
-        Product::create(['name' => 'Product 3', 
-                        'description' => 'Product 3 description',
-                        'price' => 3000,
-                        'category_uuid' => $this->categoryService->findOneWhere(['name' => 'Email'])->uuid,
-                        'image' => 'images',
-                        ]);
+        $products = [
+            [
+                'name' => 'Arcrylic',
+                'description' => 'Arcrylic description',
+                'price' => 1000,
+                'category_uuid' => $this->categoryService->findOneWhere(['name' => 'Acrylic'])->uuid,
+                'image' => 'https://apis.book-invitation.encacap.com/images/systems/1714704529.jpg',
+                'detail_images' => "[\"https:\\/\\/apis.book-invitation.encacap.com\\/images\\/systems\\/1714704529.jpg\",\"https:\\/\\/apis.book-invitation.encacap.com\\/images\\/systems\\/1714704529.jpg\"]",
+            ],
+            [
+                'name' => 'Letter press',
+                'description' => 'Letter press description',
+                'price' => 2000,
+                'category_uuid' => $this->categoryService->findOneWhere(['name' => 'Letter press'])->uuid,
+                'image' => 'https://apis.book-invitation.encacap.com/images/systems/1714704539.jpg',
+                'detail_images' => "[\"https:\\/\\/apis.book-invitation.encacap.com\\/images\\/systems\\/1714704539.jpg\",\"https:\\/\\/apis.book-invitation.encacap.com\\/images\\/systems\\/1714704539.jpg\"]",
+            ],
+            [
+                'name' => 'Luxury',
+                'description' => 'Luxury description',
+                'price' => 1000,
+                'category_uuid' => $this->categoryService->findOneWhere(['name' => 'Luxury'])->uuid,
+                'image' => 'https://apis.book-invitation.encacap.com/images/systems/1714704561.jpg',
+                'detail_images' => "[\"https:\\/\\/apis.book-invitation.encacap.com\\/images\\/systems\\/1714704561.jpg\",\"https:\\/\\/apis.book-invitation.encacap.com\\/images\\/systems\\/1714704561.jpg\"]",
+            ],
+            [
+                'name' => 'Basic',
+                'description' => 'Basic description',
+                'price' => 3000,
+                'category_uuid' => $this->categoryService->findOneWhere(['name' => 'Basic'])->uuid,
+                'image' => 'https://apis.book-invitation.encacap.com/images/systems/1714704570.jpg',
+                'detail_images' => "[\"https:\\/\\/apis.book-invitation.encacap.com\\/images\\/systems\\/1714704570.jpg\",\"https:\\/\\/apis.book-invitation.encacap.com\\/images\\/systems\\/1714704570.jpg\"]",
+            ]
+        ];
+
+
+        foreach ($products as $product) {
+            Product::updateOrCreate(['name' => $product['name'], 'category_uuid' => $product['category_uuid'], 'image' => $product['image']], $product);
+        }
     }
 }

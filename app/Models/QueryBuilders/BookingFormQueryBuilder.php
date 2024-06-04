@@ -29,6 +29,7 @@ class BookingFormQueryBuilder extends AbstractQueryBuilder
         return static::for(static::baseQuery())
             ->allowedFields([
                 $modelKeyName,
+                'uuid',
                 'bride',
                 'groom',
                 'bride_family_address',
@@ -41,7 +42,8 @@ class BookingFormQueryBuilder extends AbstractQueryBuilder
                 'party_date',
                 'party_name_place',
                 'party_address',
-                'image_design'
+                'created_at',
+                'updated_at'
             ])
             ->defaultSort('created_at')
             ->allowedSorts([
@@ -58,13 +60,14 @@ class BookingFormQueryBuilder extends AbstractQueryBuilder
                 'party_date',
                 'party_name_place',
                 'party_address',
-                'image_design',
                 'created_at',
                 'updated_at'
             ])
             ->allowedFilters([
                 $modelKeyName,
                 AllowedFilter::exact('exact__' . $modelKeyName, $modelKeyName),
+                'uuid',
+                AllowedFilter::exact('exact__uuid', 'uuid'),
                 'bride',
                 AllowedFilter::exact('exact__bride', 'bride'),
                 'groom',
@@ -85,6 +88,10 @@ class BookingFormQueryBuilder extends AbstractQueryBuilder
                 AllowedFilter::exact('exact__party_name_place', 'party_name_place'),
                 'party_address',
                 AllowedFilter::exact('exact__party_address', 'party_address'),
+                'created_at',
+                AllowedFilter::exact('exact__created_at', 'created_at'),
+                'updated_at',
+                AllowedFilter::exact('exact__updated_at', 'updated_at'),
             ]);
 
     }

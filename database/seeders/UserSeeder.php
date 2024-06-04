@@ -23,28 +23,32 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        User::create([
-            'name' => RoleEnum::ADMIN, // admin
-            'email' => RoleEnum::ADMIN  -> value . '@gmail.com', // admin@gmail.com
-            'username' => RoleEnum::ADMIN, // admin
-            'password' => bcrypt('123456'),
-            'role_uuid' => $this->roleService->findOneWhere(['name' => RoleEnum::ADMIN])->uuid
-        ]);
+        $users = [
+            [
+                'name' => RoleEnum::ADMIN, // admin
+                'email' => RoleEnum::ADMIN->value . '@gmail.com', // admin@gmail.com
+                'username' => RoleEnum::ADMIN, // admin
+                'password' => bcrypt('123456'),
+                'role_uuid' => $this->roleService->findOneWhere(['name' => RoleEnum::ADMIN])->uuid
+            ],
+            [
+                'name' => RoleEnum::SYSTEM, // system
+                'email' => RoleEnum::SYSTEM->value . '@gmail.com', // system@gmail.com
+                'username' => RoleEnum::SYSTEM, // system
+                'password' => bcrypt('123456'),
+                'role_uuid' => $this->roleService->findOneWhere(['name' => RoleEnum::SYSTEM])->uuid
+            ],
+            [
+                'name' => RoleEnum::USER, // user
+                'email' => RoleEnum::USER->value . '@gmail.com', // user@gmail.
+                'username' => RoleEnum::USER, // user
+                'password' => bcrypt('123456'),
+                'role_uuid' => $this->roleService->findOneWhere(['name' => RoleEnum::USER])->uuid
+            ]
+        ];
 
-        User::create([
-            'name' => RoleEnum::SYSTEM, // system
-            'email' => RoleEnum::SYSTEM -> value . '@gmail.com', // system@gmail.com
-            'username' => RoleEnum::SYSTEM, // system
-            'password' => bcrypt('123456'),
-            'role_uuid' => $this->roleService->findOneWhere(['name' => RoleEnum::SYSTEM])->uuid
-        ]);
-
-        User::create([
-            'name' => RoleEnum::USER, // user
-            'email' => RoleEnum::USER -> value . '@gmail.com', // user@gmail.com
-            'username' => RoleEnum::USER, // user
-            'password' => bcrypt('123456'),
-            'role_uuid' => $this->roleService->findOneWhere(['name' => RoleEnum::USER])->uuid
-        ]);
+        foreach ($users as $user) {
+            User::updateOrCreate(['email' => $user['email'], 'username' => $user['username'], 'role_uuid' => $user['role_uuid']], $user);
+        }
     }
 }

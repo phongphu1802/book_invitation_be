@@ -29,24 +29,34 @@ class OrderDetailQueryBuilder extends AbstractQueryBuilder
         return static::for(static::baseQuery())
             ->allowedFields([
                 $modelKeyName,
-                'total_amount',
-                'OrderDetail_date',
+                'uuid',
+                'quantity',
+                'sub_total',
+                'created_at',
+                'updated_at'
             ])
             ->defaultSort('created_at')
             ->allowedSorts([
                 $modelKeyName,
-                'total_amount',
-                'OrderDetail_date',
+                'uuid',
+                'quantity',
+                'sub_total',
                 'created_at',
                 'updated_at'
             ])
             ->allowedFilters([
                 $modelKeyName,
                 AllowedFilter::exact('exact__' . $modelKeyName, $modelKeyName),
-                'total_amount',
-                AllowedFilter::exact('exact__total_amount', 'total_amount'),
-                'OrderDetail_date',
-                AllowedFilter::exact('exact__OrderDetail_date', 'OrderDetail_date'),
+                'uuid',
+                AllowedFilter::exact('exact__uuid', 'uuid'),
+                'quantity',
+                AllowedFilter::exact('exact__quantity', 'quantity'),
+                'sub_total',
+                AllowedFilter::exact('exact__sub_total', 'sub_total'),
+                'created_at',
+                AllowedFilter::exact('exact__created_at', 'created_at'),
+                'updated_at',
+                AllowedFilter::exact('exact__updated_at', 'updated_at'),
             ]);
 
     }

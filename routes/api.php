@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BillingAddressController;
 use App\Http\Controllers\BookingFormController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
@@ -9,7 +11,13 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ConfigController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductStatisticController;
+use App\Http\Controllers\UploadController;
+use App\Http\Controllers\UserStatisticController;
+use App\Models\BillingAddress;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,12 +44,14 @@ Route::group(['as' => 'user.'], function () {
 
 Route::group(['middleware' => 'auth:api'], function () {
     //user
-    Route::group(['as' => 'user.'], function () {
-        Route::post('user', [UserController::class, 'store']);
-        Route::get('user/{id}', [UserController::class, 'show']);
-        Route::get('users', [UserController::class, 'index']);
-        Route::put('user/{id}', [UserController::class, 'edit']);
-        Route::delete('user/{id}', [UserController::class, 'destroy']);
+    Route::group(['middleware' => 'role:' . RoleEnum::SYSTEM->value . ',' . RoleEnum::ADMIN->value], function () {
+        Route::group(['as' => 'user.'], function () {
+            Route::post('user', [UserController::class, 'store']);
+            Route::get('user/{id}', [UserController::class, 'show']);
+            Route::get('users', [UserController::class, 'index']);
+            Route::put('user/{id}', [UserController::class, 'edit']);
+            Route::delete('user/{id}', [UserController::class, 'destroy']);
+        });
     });
 
     //order
@@ -69,55 +79,84 @@ Route::group(['middleware' => 'auth:api'], function () {
 
 //category-route
 Route::group(['as' => 'category.'], function () {
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('category', [CategoryController::class, 'store']);
-        Route::put('category/{id}', [CategoryController::class, 'edit']);
-        Route::delete('category/{id}', [CategoryController::class, 'destroy']);
+    Route::group(['middleware' => 'role:' . RoleEnum::SYSTEM->value . ',' . RoleEnum::ADMIN->value], function () {
+        Route::group(['middleware' => 'auth:api'], function () {
+            Route::post('category', [CategoryController::class, 'store']);
+            Route::put('category/{id}', [CategoryController::class, 'edit']);
+            Route::delete('category/{id}', [CategoryController::class, 'destroy']);
+        });
     });
     Route::get('category/{id}', [CategoryController::class, 'show']);
     Route::get('categories', [CategoryController::class, 'index']);
+    Route::get('categories-access', [CategoryController::class, 'indexAccess']);
 });
 
 //role
+
 Route::group(['as' => 'role.'], function () {
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('role', [RoleController::class, 'store']);
-        Route::put('role/{id}', [RoleController::class, 'edit']);
-        Route::delete('role/{id}', [RoleController::class, 'destroy']);
+    Route::group(['middleware' => 'role:' . RoleEnum::SYSTEM->value], function () {
+        Route::group(['middleware' => 'auth:api'], function () {
+            Route::post('role', [RoleController::class, 'store']);
+            Route::put('role/{id}', [RoleController::class, 'edit']);
+            Route::delete('role/{id}', [RoleController::class, 'destroy']);
+        });
     });
     Route::get('role/{id}', [RoleController::class, 'show']);
     Route::get('roles', [RoleController::class, 'index']);
 });
 
+
 //product
 Route::group(['as' => 'product.'], function () {
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('product', [ProductController::class, 'store']);
-        Route::put('product/{id}', [ProductController::class, 'edit']);
-        Route::delete('product/{id}', [ProductController::class, 'destroy']);
-        Route::post('upload-image', [ProductController::class, 'upload']);
+    Route::group(['middleware' => 'role:' . RoleEnum::SYSTEM->value . ',' . RoleEnum::ADMIN->value], function () {
+        Route::group(['middleware' => 'auth:api'], function () {
+            Route::post('product', [ProductController::class, 'store']);
+            Route::put('product/{id}', [ProductController::class, 'edit']);
+            Route::delete('product/{id}', [ProductController::class, 'destroy']);
+            Route::post('upload-image', [ProductController::class, 'upload']);
+        });
     });
     Route::get('product/{id}', [ProductController::class, 'show']);
     Route::get('products', [ProductController::class, 'index']);
 });
 
 //booking-form
-Route::group(['as' => 'booking_form.'], function () {
+Route::group(['as' => 'booking-form.'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('booking_form', [BookingFormController::class, 'store']);
-        Route::put('booking_form/{id}', [BookingFormController::class, 'edit']);
-        Route::delete('booking_form/{id}', [BookingFormController::class, 'destroy']);
+        Route::post('booking-form', [BookingFormController::class, 'store']);
+        Route::put('booking-form/{id}', [BookingFormController::class, 'edit']);
+        Route::delete('booking-form/{id}', [BookingFormController::class, 'destroy']);
     });
-    Route::get('booking_form/{id}', [BookingFormController::class, 'show']);
-    Route::get('booking_forms', [BookingFormController::class, 'index']);
+    Route::get('booking-form/{id}', [BookingFormController::class, 'show']);
+    Route::get('booking-forms', [BookingFormController::class, 'index']);
+});
+
+//upload
+Route::group(['as' => 'upload.'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('upload', [UploadController::class, 'upload']);
+    });
 });
 
 //config
+
 Route::group(['as' => 'config.'], function () {
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('config', [ConfigController::class, 'store']);
-        Route::put('config/{id}', [ConfigController::class, 'edit']);
-        Route::delete('config/{id}', [ConfigController::class, 'destroy']);
+    Route::group(['middleware' => 'role:' . RoleEnum::SYSTEM->value . ',' . RoleEnum::ADMIN->value], function () {
+        Route::group(['middleware' => 'auth:api'], function () {
+            Route::post('config', [ConfigController::class, 'store']);
+            Route::put('config/{id}', [ConfigController::class, 'edit']);
+            Route::delete('config/{id}', [ConfigController::class, 'destroy']);
+        });
     });
     Route::get('configs', [ConfigController::class, 'index']);
+});
+
+//Dashboard
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::group(['middleware' => 'role:' . RoleEnum::SYSTEM->value . ',' . RoleEnum::ADMIN->value], function () {
+        Route::get('product-statistics', [ProductStatisticController::class, 'productStatistics']);
+        Route::get('user-statistics', [UserStatisticController::class, 'userStatistics']);
+        Route::get('profit-statistics', [DashboardController::class, 'profitStatistics']);
+        Route::get('user-register-statistics', [DashboardController::class, 'userRegisterStatistics']);
+    });
 });

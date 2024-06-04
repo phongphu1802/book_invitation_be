@@ -20,6 +20,9 @@ class BookingForm extends Model
     protected $fillable = [
         'bride',
         'groom',
+        'product_uuid',
+        'user_uuid',
+        'map',
         'bride_family_address',
         'bride_father_name',
         'bride_mother_name',
@@ -32,4 +35,14 @@ class BookingForm extends Model
         'party_address',
         'image_design'
     ];
+
+    public function product()
+    {
+        return $this->hasOne(Product::class, 'uuid', 'product_uuid');
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'uuid', 'user_uuid');
+    }
 }

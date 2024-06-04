@@ -31,6 +31,10 @@ class OrderResource extends JsonResource
             $data['products'] = OrderDetailResource::collection($this->order_details);
         }
 
+        if (in_array('order__user_uuid', $expand)) {
+            $data['user'] = $this->order_user;
+        }
+
         return $data;
     }
 }

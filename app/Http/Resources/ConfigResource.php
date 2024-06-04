@@ -2,10 +2,26 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ConfigEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ConfigResource extends JsonResource
 {
+
+    public function convertData($value, $datatype)
+    {
+        if ($datatype == ConfigEnum::BOOLEAN->value) {
+            return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
+        if ($datatype == ConfigEnum::IMAGES->value) {
+            return json_decode($value);
+        }
+        if ($datatype == ConfigEnum::NUMBER->value) {
+            return $value;
+        }
+        return $value;
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -17,7 +33,8 @@ class ConfigResource extends JsonResource
         $data = [
             "uuid" => $this->uuid,
             'key' => $this->key,
-            'value' => $this->value,
+            'value' => $this->convertData($this->value, $this->datatype),
+            'datatype' => $this->datatype,
             'description' => $this->description,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

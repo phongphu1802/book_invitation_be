@@ -29,12 +29,16 @@ class OrderQueryBuilder extends AbstractQueryBuilder
         return static::for(static::baseQuery())
             ->allowedFields([
                 $modelKeyName,
+                'uuid',
                 'total_amount',
                 'order_date',
+                'created_at',
+                'updated_at'
             ])
             ->defaultSort('created_at')
             ->allowedSorts([
                 $modelKeyName,
+                'uuid',
                 'total_amount',
                 'order_date',
                 'created_at',
@@ -43,10 +47,16 @@ class OrderQueryBuilder extends AbstractQueryBuilder
             ->allowedFilters([
                 $modelKeyName,
                 AllowedFilter::exact('exact__' . $modelKeyName, $modelKeyName),
+                'uuid',
+                AllowedFilter::exact('exact__uuid', 'uuid'),
                 'total_amount',
                 AllowedFilter::exact('exact__total_amount', 'total_amount'),
                 'order_date',
                 AllowedFilter::exact('exact__order_date', 'order_date'),
+                'created_at',
+                AllowedFilter::exact('exact__created_at', 'created_at'),
+                'updated_at',
+                AllowedFilter::exact('exact__updated_at', 'updated_at'),
             ]);
 
     }

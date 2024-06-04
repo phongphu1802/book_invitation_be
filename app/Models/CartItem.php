@@ -22,7 +22,8 @@ class CartItem extends Model
         'sub_total',
     ];
 
-    public function product() {
+    public function product()
+    {
         return $this->hasOne(Product::class, 'uuid', 'product_uuid');
     }
 }

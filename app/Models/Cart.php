@@ -22,13 +22,20 @@ class Cart extends Model
         'user_uuid',
     ];
 
-    public function cart_items() {
+    public function user()
+    {
+        return $this->hasOne(User::class, 'uuid');
+    }
+
+    public function cart_items()
+    {
         return $this->hasMany(CartItem::class, 'cart_uuid', 'uuid');
     }
 
-    public function product() {
+    public function product()
+    {
         return $this->belongsToMany(Product::class, 'cart_items', 'cart_uuid', 'product_uuid');
     }
 
-    
+
 }

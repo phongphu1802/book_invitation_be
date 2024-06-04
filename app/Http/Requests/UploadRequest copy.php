@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Abstracts\AbstractRequest;
 use Illuminate\Validation\Rule;
 
-class CategoryCreateRequest extends FormRequest
+class UploadRequest extends AbstractRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +25,8 @@ class CategoryCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => [
-                'required',
-                Rule::unique('categories', 'name')->whereNull('deleted_at')
-            ],
-            'parent_uuid' => ['integer', Rule::exists('categories', 'uuid')]
+            'image' => ['required', 'image'],
+            'type' => ['required', Rule::in('user', 'product', 'system')]
         ];
     }
 }

@@ -21,6 +21,7 @@ class Config extends Model
     protected $fillable = [
         'key',
         'value',
+        'datatype',
         'description',
     ];
 }

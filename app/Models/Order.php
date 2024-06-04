@@ -24,7 +24,13 @@ class Order extends Model
         'user_uuid',
     ];
 
-    public function order_details() {
+    public function order_details()
+    {
         return $this->hasMany(OrderDetail::class, 'order_uuid', 'uuid');
+    }
+
+    public function order_user()
+    {
+        return $this->hasOne(User::class, "uuid", "user_uuid");
     }
 }

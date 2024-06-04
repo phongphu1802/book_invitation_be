@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\DashboardEnum;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CategoryUpdateRequest extends FormRequest
+class DasboardStatisticRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,15 +26,12 @@ class CategoryUpdateRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => [
-                Rule::unique('categories', 'name')->ignore($this->id, 'uuid')->whereNull('deleted_at')
-            ],
-            'parent_uuid' => [
-                Rule::when($this->parent_uuid == null, ['nullable']),
-                Rule::when($this->parent_uuid != null, ['exists:categories,uuid']),
-            ]
+        $to = Carbon::parse($this->end_date);
 
+        return [
+            'from_date' => 'required|before:to_date,' . date('Y-m-d', strtotime($to . ' +1 day')),
+            'to_date' => ['required', 'date'],
+            'type' => ['required', Rule::in([DashboardEnum::DAY->value, DashboardEnum::MONTH->value, DashboardEnum::YEAR->value])]
         ];
     }
 }

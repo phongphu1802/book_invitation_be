@@ -29,11 +29,15 @@ class RoleQueryBuilder extends AbstractQueryBuilder
         return static::for(static::baseQuery())
             ->allowedFields([
                 $modelKeyName,
+                'uuid',
                 'name',
+                'created_at',
+                'updated_at'
             ])
             ->defaultSort('created_at')
             ->allowedSorts([
                 $modelKeyName,
+                'uuid',
                 'name',
                 'created_at',
                 'updated_at'
@@ -41,8 +45,14 @@ class RoleQueryBuilder extends AbstractQueryBuilder
             ->allowedFilters([
                 $modelKeyName,
                 AllowedFilter::exact('exact__' . $modelKeyName, $modelKeyName),
+                'uuid',
+                AllowedFilter::exact('exact__uuid', 'uuid'),
                 'name',
                 AllowedFilter::exact('exact__name', 'name'),
+                'created_at',
+                AllowedFilter::exact('exact__created_at', 'created_at'),
+                'updated_at',
+                AllowedFilter::exact('exact__updated_at', 'updated_at'),
             ]);
 
     }

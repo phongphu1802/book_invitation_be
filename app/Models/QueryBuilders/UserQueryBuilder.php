@@ -29,14 +29,18 @@ class UserQueryBuilder extends AbstractQueryBuilder
         return static::for(static::baseQuery())
             ->allowedFields([
                 $modelKeyName,
+                'uuid',
                 'name',
                 'email',
                 'username',
-                'password'
+                'password',
+                'created_at',
+                'updated_at'
             ])
             ->defaultSort('created_at')
             ->allowedSorts([
                 $modelKeyName,
+                'uuid',
                 'name',
                 'email',
                 'username',
@@ -47,6 +51,8 @@ class UserQueryBuilder extends AbstractQueryBuilder
             ->allowedFilters([
                 $modelKeyName,
                 AllowedFilter::exact('exact__' . $modelKeyName, $modelKeyName),
+                'uuid',
+                AllowedFilter::exact('exact__uuid', 'uuid'),
                 'name',
                 AllowedFilter::exact('exact__name', 'name'),
                 'email',
@@ -54,7 +60,11 @@ class UserQueryBuilder extends AbstractQueryBuilder
                 'username',
                 AllowedFilter::exact('exact__username', 'username'),
                 'password',
-                AllowedFilter::exact('exact__password', 'password')
+                AllowedFilter::exact('exact__password', 'password'),
+                'created_at',
+                AllowedFilter::exact('exact__created_at', 'created_at'),
+                'updated_at',
+                AllowedFilter::exact('exact__updated_at', 'updated_at'),
             ]);
 
     }

@@ -7,62 +7,79 @@ use App\Http\Requests\IndexRequest;
 use App\Http\Requests\CartCreateRequest;
 use App\Http\Resources\CartResource;
 use App\Models\Cart;
+use App\Models\CartItem;
+use App\Services\CartItemService;
 use App\Services\CartService;
 use App\Services\ProductService;
 
 class CartController extends AbstractRestAPIController
 {
-    protected $productService;
-    public function __construct(CartService $service, ProductService $productService)
+    protected $productService, $cartItemService;
+    public function __construct(CartService $service, ProductService $productService, CartItemService $cartItemService)
     {
         $this->service = $service;
-        $this->productService = $productService;
         $this->resourceClass = CartResource::class;
+        $this->productService = $productService;
+        $this->cartItemService = $cartItemService;
         $this->indexRequest = IndexRequest::class;
     }
 
     public function index()
     {
-        $cart_current = $this->service->findOneWhereOrFail(['user_uuid' => auth()->user()->getKey()]);
-        return $this->sendOkJsonResponse(['data' => CartResource::make($cart_current)]);
+        $cartCurrent = $this->service->findOneWhere(['user_uuid' => auth()->user()->getKey()]);
+        if (!$cartCurrent) {
+            $cartCurrent = $this->service->create(['user_uuid' => auth()->user()->getKey()]);
+        }
+        return $this->sendOkJsonResponse($this->service->resourceToData($this->resourceClass, $cartCurrent));
     }
 
     public function store(CartCreateRequest $request)
     {
-        $cart_current = $this->service->findOneWhereOrFail(['user_uuid' => auth()->user()->getKey()]);
-        if (!$cart_current) {
-            $cart_current = Cart::create(['user_uuid' => auth()->user()->getKey()]);
+        $cartCurrent = $this->service->findOneWhere(['user_uuid' => auth()->user()->getKey()]);
+        if (!$cartCurrent) {
+            $cartCurrent = $this->service->create(['user_uuid' => auth()->user()->getKey()]);
         }
 
-        $cart_detail = $request->product;
+        //Find product in cart
+        $cartItemsCurrent = $this->cartItemService->findOneWhere([['product_uuid', $request->product_uuid], ['cart_uuid', $cartCurrent->getKey()]]);
 
-        foreach ($cart_detail as $item) {
-            $temp[$item['product_uuid']] = [
-                'quantity' => $item['quantity'],
-                'sub_total' => $this->productService->findOneById($item['product_uuid'])->price * $item['quantity'],
-            ];
+        if ($cartItemsCurrent) {
+            //quantityUpdate
+            $quantityUpdate = $cartItemsCurrent->quantity + $request->quantity;
+
+            //subTotalUpdate
+            $subTotalUpdate = $this->productService->findOneById($request->product_uuid)->price * $quantityUpdate;
+
+            $this->cartItemService->update($cartItemsCurrent, ['quantity' => $quantityUpdate, 'sub_total' => $subTotalUpdate]);
+
+            return $this->sendOkJsonResponse($this->service->resourceToData($this->resourceClass, $cartCurrent));
         }
 
-        $cart_current->product()->sync($temp);
+        $temp[$request->product_uuid] = [
+            'quantity' => $request->quantity,
+            'sub_total' => $this->productService->findOneById($request->product_uuid)->price * $request->quantity,
+        ];
 
-        return $this->sendOkJsonResponse(['data' => CartResource::make($cart_current)]);
+        $cartCurrent->product()->attach($temp);
+
+        return $this->sendOkJsonResponse($this->service->resourceToData($this->resourceClass, $cartCurrent));
     }
 
     public function destroyCartItem($id)
     {
-        $cart_current = $this->service->findOneWhereOrFail(['user_uuid' => auth()->user()->getKey()]);
+        $cartCurrent = $this->service->findOneWhereOrFail(['user_uuid' => auth()->user()->getKey()]);
 
-        $cart_current->product()->detach($id);
+        $cartCurrent->product()->detach($id);
 
-        return $this->sendOkJsonResponse(['data' => CartResource::make($cart_current)]);
+        return $this->sendOkJsonResponse($this->service->resourceToData($this->resourceClass, $cartCurrent));
     }
 
     public function destroyCart($id)
     {
-        $cart_current = $this->service->findOrFailById($id);
+        $cartCurrent = $this->service->findOrFailById($id);
 
-        if ($cart_current->product)
-            $cart_current->product()->detach([]);
+        if ($cartCurrent->product)
+            $cartCurrent->product()->detach([]);
 
         $this->service->destroy($id);
 

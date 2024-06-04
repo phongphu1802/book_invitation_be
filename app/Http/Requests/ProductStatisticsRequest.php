@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class CategoryCreateRequest extends FormRequest
+class ProductStatisticsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,12 +24,11 @@ class CategoryCreateRequest extends FormRequest
      */
     public function rules()
     {
+        $to = Carbon::parse($this->end_date);
+
         return [
-            'name' => [
-                'required',
-                Rule::unique('categories', 'name')->whereNull('deleted_at')
-            ],
-            'parent_uuid' => ['integer', Rule::exists('categories', 'uuid')]
+            'from_date' => 'required|before:to_date,' . date('Y-m-d', strtotime($to . ' +1 day')),
+            'to_date' => ['required', 'date'],
         ];
     }
 }

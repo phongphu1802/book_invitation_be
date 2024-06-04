@@ -28,10 +28,6 @@ class User extends Authenticatable implements JWTSubject
         'role_uuid'
     ];
 
-    public function role()
-    {
-        return $this->hasOne(Role::class, 'uuid');
-    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -70,5 +66,11 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+
+    public function role()
+    {
+        return $this->hasOne(Role::class, 'uuid', 'role_uuid');
     }
 }

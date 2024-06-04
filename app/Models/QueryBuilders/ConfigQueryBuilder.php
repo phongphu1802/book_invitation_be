@@ -32,6 +32,10 @@ class ConfigQueryBuilder extends AbstractQueryBuilder
                 'key',
                 'value',
                 'description',
+                'type',
+                'datatype',
+                'created_at',
+                'updated_at',
             ])
             ->defaultSort('created_at')
             ->allowedSorts([
@@ -39,19 +43,31 @@ class ConfigQueryBuilder extends AbstractQueryBuilder
                 'key',
                 'value',
                 'description',
+                'type',
+                'datatype',
                 'created_at',
                 'updated_at',
-                'delete_at'
+                'deleted_at'
             ])
             ->allowedFilters([
                 $modelKeyName,
                 AllowedFilter::exact('exact__' . $modelKeyName, $modelKeyName),
+                'uuid',
+                AllowedFilter::exact('exact__uuid', 'uuid'),
                 'key',
                 AllowedFilter::exact('exact__key', 'key'),
                 'value',
                 AllowedFilter::exact('exact__value', 'value'),
+                'type',
+                AllowedFilter::exact('exact__type', 'type'),
+                'datatype',
+                AllowedFilter::exact('exact__datatype', 'datatype'),
                 'description',
                 AllowedFilter::exact('exact__description', 'description'),
+                'created_at',
+                AllowedFilter::exact('exact__created_at', 'created_at'),
+                'updated_at',
+                AllowedFilter::exact('exact__updated_at', 'updated_at'),
             ]);
 
     }

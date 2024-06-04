@@ -23,6 +23,7 @@ class Product extends Model
         'description',
         'price',
         'image',
+        'detail_images',
         'category_uuid'
     ];
 
@@ -33,6 +34,6 @@ class Product extends Model
 
     public function category()
     {
-        return $this->hasOne(Category::class, 'uuid');
+        return $this->hasOne(Category::class, 'uuid', 'category_uuid');
     }
 }

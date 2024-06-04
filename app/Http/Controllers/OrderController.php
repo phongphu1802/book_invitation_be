@@ -33,14 +33,14 @@ class OrderController extends AbstractRestAPIController
     public function store(OrderCreateRequest $service)
     {
         $order = Order::create([
-            'order_date' => new Carbon($service ->order_date),
-            'total_amount' => $service ->total_amount,
+            'order_date' => new Carbon($service->order_date),
+            'total_amount' => $service->total_amount,
             'user_uuid' => auth()->user()->getKey(),
         ]);
 
         $order_detail = $service->product;
 
-        foreach($order_detail as $item) {
+        foreach ($order_detail as $item) {
             OrderDetail::create([
                 'order_uuid' => $order->getKey(),
                 'product_uuid' => $item['product_uuid'],
@@ -49,6 +49,7 @@ class OrderController extends AbstractRestAPIController
             ]);
         }
 
-;       return $this->sendOkJsonResponse(['data' => OrderResource::make($order)]);
+        ;
+        return $this->sendOkJsonResponse(['data' => OrderResource::make($order)]);
     }
 }

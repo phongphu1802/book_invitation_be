@@ -26,6 +26,6 @@ class OrderDetail extends Model
 
     public function product()
     {
-        return $this->hasOne(Product::class, 'uuid');
+        return $this->hasOne(Product::class, 'uuid', 'product_uuid');
     }
 }

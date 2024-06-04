@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Request;
 
 class BookingFormResource extends JsonResource
 {
@@ -16,8 +17,11 @@ class BookingFormResource extends JsonResource
     {
         $data = [
             "uuid" => $this->uuid,
+            "user_uuid" => $this->user_uuid,
+            "product_uuid" => $this->product_uuid,
             "bride" => $this->bride,
             "groom" => $this->groom,
+            "map" => $this->map,
             "bride_family_address" => $this->bride_family_address,
             "bride_father_name" => $this->bride_father_name,
             "bride_mother_name" => $this->bride_mother_name,
@@ -32,6 +36,17 @@ class BookingFormResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+
+        $expand = Request::get('expand', []);
+
+        if (in_array('bookingForm__product_uuid', $expand)) {
+            $data['product'] = $this->product;
+        }
+
+        if (in_array('bookingForm__user_uuid', $expand)) {
+            $data['user'] = $this->user;
+        }
+
         return $data;
     }
 }
